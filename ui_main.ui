@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
-    <height>197</height>
+    <width>1000</width>
+    <height>500</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>500</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -112,7 +118,7 @@
 border: 0px solid;</string>
             </property>
             <property name="text">
-             <string>易教帮</string>
+             <string>TOGGLE</string>
             </property>
            </widget>
           </item>
@@ -192,7 +198,7 @@ border: 0px solid;</string>
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
+          <item alignment="Qt::AlignTop">
            <widget class="QFrame" name="frame_top_menus">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -217,18 +223,12 @@ border: 0px solid;</string>
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="pushButtonArchive">
+              <widget class="QPushButton" name="btn_page_1">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
                  <height>40</height>
                 </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>黑体</family>
-                 <pointsize>12</pointsize>
-                </font>
                </property>
                <property name="styleSheet">
                 <string notr="true">QPushButton {
@@ -237,7 +237,7 @@ border: 0px solid;</string>
 	border: 0px solid;
 }
 QPushButton:hover {
-	background-color: rgb(88, 88, 88);
+	background-color: rgb(85, 170, 255);
 }</string>
                </property>
                <property name="text">
@@ -246,7 +246,7 @@ QPushButton:hover {
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButtonCheck">
+              <widget class="QPushButton" name="btn_page_2">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -260,34 +260,11 @@ QPushButton:hover {
 	border: 0px solid;
 }
 QPushButton:hover {
-	background-color: rgb(88, 88, 88);
+	background-color: rgb(85, 170, 255);
 }</string>
                </property>
                <property name="text">
                 <string>作业批改</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButtonDirectory">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>40</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-	color: rgb(255, 255, 255);
-	background-color: rgb(35, 35, 35);
-	border: 0px solid;
-}
-QPushButton:hover {
-	background-color: rgb(88, 88, 88);
-}</string>
-               </property>
-               <property name="text">
-                <string>工作目录</string>
                </property>
               </widget>
              </item>
@@ -306,7 +283,30 @@ QPushButton:hover {
 	border: 0px solid;
 }
 QPushButton:hover {
-	background-color: rgb(88, 88, 88);
+	background-color: rgb(85, 170, 255);
+}</string>
+               </property>
+               <property name="text">
+                <string>命名格式</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btn_page_4">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
 }</string>
                </property>
                <property name="text">
@@ -332,21 +332,233 @@ QPushButton:hover {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="page_1">
+             <widget class="QPushButton" name="pushButton">
+              <property name="geometry">
+               <rect>
+                <x>40</x>
+                <y>20</y>
+                <width>93</width>
+                <height>28</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>工作目录</string>
+              </property>
+             </widget>
              <widget class="QTextBrowser" name="textBrowser">
               <property name="geometry">
                <rect>
-                <x>20</x>
+                <x>530</x>
+                <y>40</y>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="geometry">
+               <rect>
+                <x>40</x>
+                <y>80</y>
+                <width>93</width>
+                <height>28</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>作业批次</string>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="page_2">
+             <widget class="QTextBrowser" name="textBrowser_2">
+              <property name="geometry">
+               <rect>
+                <x>610</x>
                 <y>0</y>
-                <width>291</width>
-                <height>71</height>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+             <widget class="QTextBrowser" name="textBrowser_3">
+              <property name="geometry">
+               <rect>
+                <x>610</x>
+                <y>220</y>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+             <widget class="QTextBrowser" name="textBrowser_4">
+              <property name="geometry">
+               <rect>
+                <x>330</x>
+                <y>10</y>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+             <widget class="QTextBrowser" name="textBrowser_5">
+              <property name="geometry">
+               <rect>
+                <x>330</x>
+                <y>220</y>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="pushButton_3">
+              <property name="geometry">
+               <rect>
+                <x>70</x>
+                <y>170</y>
+                <width>121</width>
+                <height>41</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>登记成绩</string>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="page_3">
+             <widget class="QPushButton" name="pushButton_4">
+              <property name="geometry">
+               <rect>
+                <x>140</x>
+                <y>70</y>
+                <width>93</width>
+                <height>28</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>添加姓名</string>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="pushButton_5">
+              <property name="geometry">
+               <rect>
+                <x>160</x>
+                <y>140</y>
+                <width>93</width>
+                <height>28</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>添加学号</string>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="pushButton_6">
+              <property name="geometry">
+               <rect>
+                <x>130</x>
+                <y>197</y>
+                <width>161</width>
+                <height>41</height>
+               </rect>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+	font: 12pt &quot;黑体&quot;;
+}
+QPushButton:hover {
+	background-color: rgb(85, 170, 255);
+}</string>
+              </property>
+              <property name="text">
+               <string>添加实验编号</string>
+              </property>
+             </widget>
+             <widget class="QTextBrowser" name="textBrowser_6">
+              <property name="geometry">
+               <rect>
+                <x>620</x>
+                <y>120</y>
+                <width>256</width>
+                <height>192</height>
                </rect>
               </property>
              </widget>
             </widget>
-            <widget class="QWidget" name="page_2"/>
+            <widget class="QWidget" name="page_4">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <widget class="QTextBrowser" name="textBrowser_7">
+              <property name="geometry">
+               <rect>
+                <x>550</x>
+                <y>100</y>
+                <width>256</width>
+                <height>192</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
            </widget>
           </item>
          </layout>

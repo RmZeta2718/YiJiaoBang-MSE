@@ -37,12 +37,12 @@ def getSuffix(file_name: str) -> Tuple[str, str]:
     return file_name[:idx], file_name[idx:]
 
 
-def stuFileRename(file_name: str, df: pd.DataFrame, hwno: int, fmt: str) -> str:
+def stuFileRename(file_name: str, df: pd.DataFrame, hwno: int, fmt: str) -> Tuple[str, str]:
     file_name, suffix = getSuffix(file_name)
     stuno = stuCheck(file_name, df)
     if stuno == "":
-        return ""
-    return stuFormat(df, stuno, hwno, fmt) + suffix
+        return "", ""
+    return stuno, stuFormat(df, stuno, hwno, fmt) + suffix
 
 
 if __name__ == '__main__':

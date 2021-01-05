@@ -6,21 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>658</height>
+    <width>476</width>
+    <height>197</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>1000</width>
-    <height>500</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>易教帮</string>
+   <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">background-color: rgb(45, 45, 45);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -40,13 +34,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QFrame" name="Top_bar">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
+     <widget class="QFrame" name="Top_Bar">
       <property name="maximumSize">
        <size>
         <width>16777215</width>
@@ -54,7 +42,7 @@
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">background-color: rgb(35, 35, 35);</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -82,12 +70,12 @@
         <widget class="QFrame" name="frame_toggle">
          <property name="maximumSize">
           <size>
-           <width>250</width>
+           <width>70</width>
            <height>40</height>
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true"/>
+          <string notr="true">background-color: rgb(85, 170, 255);</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -112,7 +100,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="Btn_toggle">
+           <widget class="QPushButton" name="Btn_Toggle">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -120,7 +108,8 @@
              </sizepolicy>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">color: rgb(255, 255, 255);
+border: 0px solid;</string>
             </property>
             <property name="text">
              <string>易教帮</string>
@@ -171,7 +160,7 @@
         <widget class="QFrame" name="frame_left_menu">
          <property name="minimumSize">
           <size>
-           <width>250</width>
+           <width>70</width>
            <height>0</height>
           </size>
          </property>
@@ -182,7 +171,7 @@
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true"/>
+          <string notr="true">background-color: rgb(35, 35, 35);</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -191,9 +180,6 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
-          <property name="spacing">
-           <number>0</number>
-          </property>
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -208,9 +194,6 @@
           </property>
           <item>
            <widget class="QFrame" name="frame_top_menus">
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -218,16 +201,44 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QPushButton" name="pushButtonArchive">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>80</height>
+                 <height>40</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>黑体</family>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
                <property name="styleSheet">
-                <string notr="true"/>
+                <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+}
+QPushButton:hover {
+	background-color: rgb(88, 88, 88);
+}</string>
                </property>
                <property name="text">
                 <string>作业归档</string>
@@ -239,11 +250,18 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>80</height>
+                 <height>40</height>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true"/>
+                <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+}
+QPushButton:hover {
+	background-color: rgb(88, 88, 88);
+}</string>
                </property>
                <property name="text">
                 <string>作业批改</string>
@@ -255,11 +273,18 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>80</height>
+                 <height>40</height>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true"/>
+                <string notr="true">QPushButton {
+	color: rgb(255, 255, 255);
+	background-color: rgb(35, 35, 35);
+	border: 0px solid;
+}
+QPushButton:hover {
+	background-color: rgb(88, 88, 88);
+}</string>
                </property>
                <property name="text">
                 <string>工作目录</string>
@@ -267,22 +292,21 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButtonHwNo">
+              <widget class="QPushButton" name="btn_page_3">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>80</height>
+                 <height>40</height>
                 </size>
                </property>
                <property name="styleSheet">
                 <string notr="true">QPushButton {
-    color: rgb(255, 255, 255);
+	color: rgb(255, 255, 255);
 	background-color: rgb(35, 35, 35);
-    border:0px solid;
+	border: 0px solid;
 }
-QPushButton:hover{
-	background-color: rgb(85, 170, 255);
-
+QPushButton:hover {
+	background-color: rgb(88, 88, 88);
 }</string>
                </property>
                <property name="text">
@@ -298,31 +322,34 @@ QPushButton:hover{
        </item>
        <item>
         <widget class="QFrame" name="frame_pages">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QTextBrowser" name="textBrowser">
-          <property name="geometry">
-           <rect>
-            <x>40</x>
-            <y>40</y>
-            <width>671</width>
-            <height>511</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QStackedWidget" name="stackedWidget">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="page_1">
+             <widget class="QTextBrowser" name="textBrowser">
+              <property name="geometry">
+               <rect>
+                <x>20</x>
+                <y>0</y>
+                <width>291</width>
+                <height>71</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="page_2"/>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -330,15 +357,7 @@ QPushButton:hover{
     </item>
    </layout>
   </widget>
-  <action name="action">
-   <property name="text">
-    <string>工作目录...</string>
-   </property>
-  </action>
  </widget>
- <resources>
-  <include location="../实践代码及图像集/images/test.qrc"/>
-  <include location="../实践代码及图像集/images/111.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -1,3 +1,5 @@
 /SafeDelete/
 /附件/
 *.zip
+/build/
+/dist/

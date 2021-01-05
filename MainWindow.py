@@ -1,10 +1,13 @@
 import sys
 import os
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QInputDialog, QWidget, QStyle
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
 from PyQt5 import uic  # for loadUI
 from StuFileRename import stuFileRename
 import pandas as pd
+
+from ui_functions import *
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -12,14 +15,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('MainWindow.ui', self)  # load *.ui file
+        # uic.loadUi('ui_main.ui', self)  # load *.ui file
 
         # global variables (in class)
         self.rootDir = None  # 工作环境根目录
         self.hwNo = None  # 当前处理的作业编号
         self.stuInfo = None  # 学生信息表，pandas data frame
         self.statDir = None  # 作业统计信息表, 路径
-        self.fileFormat = r'%s_%s'  # 重命名格式
+        self.fileFormat = r'<学号>_<姓名>_实验<实验编号>'  # 重命名格式
         self.encoding = None  # 文件编码格式，由学生信息表确定
+        self.animation = None  # Qt动画对象
 
         # global contants (in class)
         self.fileDf = '学生信息表.csv'
@@ -34,9 +39,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # create slots
         self.pushButtonDirectory.clicked.connect(self.onPushButtonDirectory)
-        self.pushButtonHwNo.clicked.connect(self.onPushButtonHwNo)
+        # self.pushButtonHwNo.clicked.connect(self.onPushButtonHwNo)
         self.pushButtonArchive.clicked.connect(self.onPushButtonArchive)
         self.pushButtonCheck.clicked.connect(self.onPushButtonCheck)
+        # self.Btn_Toggle.clicked.connect(lambda: UIFunctions.toggleMenu(self, 250, True))
 
     def onPushButtonDirectory(self):
         self.rootDir = QFileDialog.getExistingDirectory(self)
@@ -49,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.rootDir = None
             return
         os.chdir(self.rootDir)  # change current working directory to rootDir
-        if not self.initdf:
+        if not self.initdf():
             self.rootDir = None
             return
         tardir = ['./' + path for path in [self.dirWaiting, self.dirArchive]]
@@ -62,7 +68,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.checkSettings(onlyRoot=True):
             return
         # 输入
-        self.hwNo, ok = QInputDialog.getInt(self, '作业批次', '请输入作业批次', min=1, max=100)
+        self.hwNo, ok = QInputDialog.getInt(self, '作业批次', '请输入作业批次', min=1, max=99)
         if not ok:
             self.hwNo = None
             return
@@ -96,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         archive_cnt = 0
         for file_name in waiting_files:
-            new_name = stuFileRename(file_name, self.stuInfo, self.fileFormat)
+            new_name = stuFileRename(file_name, self.stuInfo, self.hwNo, self.fileFormat)
             print(file_name, '|', new_name)
             if len(new_name) == 0:
                 continue
@@ -115,10 +121,13 @@ class MainWindow(QtWidgets.QMainWindow):
         stuno, ok = QInputDialog.getText(self, '作业批改', '请输入学号')
         if not ok:
             return
+        if stuno not in self.stuInfo.index:
+            QMessageBox.critical(self, '错误', f'学号 {stuno} 不存在')
+            return
         file_name = self.stuno2filename(stuno)
         print(file_name)
         if file_name is None:
-            QMessageBox.critical(self, '错误', f'学号 {stuno} 不存在')
+            QMessageBox.critical(self, '错误', f'找不到学号 {stuno} 对应的作业文件')
             return
         score, ok = QInputDialog.getText(self, '作业批改', '请输入成绩')
         if not ok:
@@ -177,7 +186,9 @@ class MainWindow(QtWidgets.QMainWindow):
             except UnicodeDecodeError:
                 QMessageBox.critical(self, '错误', '无法解析学生信息表，请确保其编码格式为UTF-8或ANSI')
                 return False
+        # change to str
         self.stuInfo = self.stuInfo.astype(str)
+        self.stuInfo.set_index('学号', inplace=True, verify_integrity=True)
         print(self.stuInfo)
         return True
 
@@ -200,18 +211,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                   f'若已有该文件，请确保其路径为：\n{self.statDir}',
                                       buttons=QMessageBox.Yes | QMessageBox.No,
                                       defaultButton=QMessageBox.Yes)
-        # try:
-        #     df = pd.read_csv(path, encoding='ANSI')
-        # except UnicodeDecodeError:
-        #     try:
-        #         df = pd.read_csv(path, encoding='UTF-8')
-        #     except UnicodeDecodeError:
-        #         return self.CSV_NOT_STAND, None
-        # return self.CSV_CHECKED, df
-        # elif csv_status == self.CSV_NOT_STAND:
-        #     ans = QMessageBox.warning(self, "警告", "检测到 %s 格式不规范，是否重写？" % self.statDf,
-        #                               buttons=QMessageBox.Yes | QMessageBox.No,
-        #                               defaultButton=QMessageBox.Yes)
+        # TODO: 检查文件格式是否规范
         if ans == QMessageBox.Yes:
             self.initCsv()
         elif ans == QMessageBox.No:
@@ -220,14 +220,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def initCsv(self):
         rows = self.stuInfo.shape[0]
-        data = {'学号': self.stuInfo.学号, '姓名': self.stuInfo.姓名,
+        data = {'学号': self.stuInfo['学号'], '姓名': self.stuInfo['姓名'],
                 '成绩': [None] * rows, '状态': [None] * rows, '批注': [None] * rows}
         df = pd.DataFrame(data)
         # print(df)
         df.to_csv(self.statDir, encoding=self.encoding, index=False)
 
     def stuno2filename(self, stuNo):
-        # TODO: stuNo == ""
+        """
+        调用者需要确保stuNo在学生信息表中存在。
+        :param stuNo: str
+        :return: None or str
+        """
         file_list = os.listdir(f'./{self.dirArchive}/{self.hwNo}/{self.dirNoMark}')
         for file in file_list:
             if file.find(stuNo) >= 0:
@@ -235,15 +239,14 @@ class MainWindow(QtWidgets.QMainWindow):
         return None
 
     def StatCommit(self, stuno, grade, comment):
-        for idx, no in enumerate(self.stuInfo.学号):
-            if no == stuno:
-                break
         df = pd.read_csv(self.statDir, encoding='ANSI')
+        df.astype(str)
+        df.set_index('学号', inplace=True)
         # df.成绩[idx] = grade
         # df.批注[idx] = comment
-        df.loc[idx, ['成绩', '批注']] = grade, comment
-        print(df.iloc[idx, :])
-        df.to_csv(self.statDir, encoding=self.encoding, index=False)
+        df.loc[stuno, ['成绩', '批注']] = grade, comment
+        print(df.loc[stuno, :])
+        df.to_csv(self.statDir, encoding=self.encoding)
 
     def showSysHint(self):
         text = ''
@@ -260,6 +263,7 @@ if __name__ == '__main__':
     # prog = MyFirstGuiProgram(dialog)
     # dialog.show()
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('Fusion')
     widget = MainWindow()
     widget.show()
     sys.exit(app.exec_())

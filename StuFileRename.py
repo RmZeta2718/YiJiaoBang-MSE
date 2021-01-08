@@ -45,6 +45,10 @@ def stuFileRename(file_name: str, df: pd.DataFrame, hwno: int, fmt: str) -> Tupl
     return stuno, stuFormat(df, stuno, hwno, fmt) + suffix
 
 
+def nameFormatDump(fmt: str) -> str:
+    return re.sub(r' ', '_', fmt)
+
+
 if __name__ == '__main__':
     df = pd.read_csv('./附件/学生信息表.csv', encoding="ANSI")
     df = df.astype(str)

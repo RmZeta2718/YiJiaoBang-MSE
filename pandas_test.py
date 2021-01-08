@@ -6,6 +6,10 @@ df.set_index('学号', inplace=True, verify_integrity=True)
 print(df)
 print(df.loc['10185102223'])
 
-print(df.loc['10185102223'])
-print('1018512223' in df.index)
-print(df.index)
+no = '10185102223'
+print(no in df.index)
+print(list(df.index))
+print(df.loc[no, '姓名'])
+df.loc[no, '姓名'] = '123123123123'
+df.to_csv('./test.csv', encoding="ANSI")
+

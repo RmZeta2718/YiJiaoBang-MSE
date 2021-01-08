@@ -3,13 +3,13 @@ import os
 from typing import Union
 import datetime
 import pandas as pd
-from StuFileRename import stuFileRename
-from late_delivery import checkPathLate
+from StuFileRename import stuFileRename, nameFormatDump
+from fileModifyTime import fileModifyTime, checkPathLate
 from ui_functions import *
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QInputDialog
-from PyQt5.QtCore import QPropertyAnimation, QDateTime
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QDateTime
 from PyQt5 import uic  # for loadUI
 
 
@@ -52,16 +52,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # create slots
         # page slots
-        self.BtnPageFormat.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.pageFormat))
+        self.BtnPageFormat.clicked.connect(self.onBtnPageFormat)
         self.BtnPageArchive.clicked.connect(self.onBtnPageArchive)  # need change datetime on click
-        self.BtnPageCheck.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.pageCheck))
-        self.BtnPageStat.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.pageStat))
+        self.BtnPageCheck.clicked.connect(self.onBtnPageCheck)
+        self.BtnPageStat.clicked.connect(self.onBtnPageStat)
         self.BtnToggle.clicked.connect(lambda: UIFunctions.toggleMenu(self, 250, True))
         # Format page button slots
         self.BtnAddName.clicked.connect(self.onBtnAddName)
         self.BtnAddStuNo.clicked.connect(self.onBtnAddStuNo)
         self.BtnAddHwNo.clicked.connect(self.onBtnAddHwNo)
         self.BtnSetFormat.clicked.connect(self.onBtnSetFormat)
+        self.textEditFormat.textChanged.connect(self.onTextFormatChanged)
         # Archive page button slots
         self.BtnSetDir.clicked.connect(self.onBtnSetDir)
         self.BtnSetHwNo.clicked.connect(self.onBtnSetHwNo)
@@ -69,30 +70,63 @@ class MainWindow(QtWidgets.QMainWindow):
         self.BtnArchive.clicked.connect(self.onBtnArchive)
         # Check page button slots
         self.BtnCheck.clicked.connect(self.onBtnCheck)
+        self.textEditStuNo.textChanged.connect(self.onTextStuNoChanged)
+        self.textEditScore.textChanged.connect(self.onTextScoreChanged)
 
-    # Format page
+    # page switch function
+    def onBtnPageFormat(self):
+        """
+        来到格式页时总显示当前格式
+        """
+        # self.textEditFormat: QtWidgets.QTextEdit
+        self.textEditFormat.setText(self.fileFormat)
+        self.labelTop.setText(self.BtnPageFormat.text())
+        self.stackedWidget.setCurrentWidget(self.pageFormat)
+
     def onBtnPageArchive(self):
         """
         每次点击菜单页的归档按钮，把DDL默认值改为当前时间
         """
         # self.dateTimeEdit: QtWidgets.QDateTimeEdit
-        self.dateTimeEdit.setDate(QDateTime.currentDateTime())
+        self.dateTimeEdit.setDateTime(QDateTime.currentDateTime())
         self.dateTimeEdit.setMinimumDateTime(QDateTime.currentDateTime().addDays(-365))
         self.dateTimeEdit.setMaximumDateTime(QDateTime.currentDateTime().addDays(365))
+        self.labelTop.setText(self.BtnPageArchive.text())
         self.stackedWidget.setCurrentWidget(self.pageArchive)
 
+    def onBtnPageCheck(self):
+        self.labelTop.setText(self.BtnPageCheck.text())
+        self.stackedWidget.setCurrentWidget(self.pageCheck)
+
+    # Format page
     def onBtnAddName(self):
-        self.textEditFormat.append('<姓名>')
+        self.textEditFormat.setText(self.textEditFormat.toPlainText() + '<姓名>')
 
     def onBtnAddStuNo(self):
-        self.textEditFormat.append('<学号>')
+        self.textEditFormat.setText(self.textEditFormat.toPlainText() + '<学号>')
 
     def onBtnAddHwNo(self):
-        self.textEditFormat.append('<实验编号>')
+        self.textEditFormat.setText(self.textEditFormat.toPlainText() + '<实验编号>')
 
     def onBtnSetFormat(self):
         # self.textEditFormat: QtWidgets.QTextEdit
-        self.fileFormat = self.textEditFormat.toPlainText()
+        # self.labelForamt: QtWidgets.QLabel
+        fmt = self.textEditFormat.toPlainText()
+        if fmt.find(' ') != -1:
+            ans = QMessageBox.question(self, '提示', '文件名中包含空格，是否替换为下划线(_)？')
+            if ans == QMessageBox.Yes:
+                fmt = nameFormatDump(fmt)
+                self.textEditFormat.setText(fmt)
+        self.fileFormat = fmt
+        self.labelForamt.setText('')
+
+    def onTextFormatChanged(self):
+        # self.textEditFormat: QtWidgets.QTextEdit
+        # self.labelForamt: QtWidgets.QLabel
+        if self.fileFormat != self.textEditFormat.toPlainText():
+            self.labelForamt.setText(f'当前格式：{self.fileFormat}')
+        else:
+            self.labelForamt.setText('')
 
     ###################################################################
     # Archive page
@@ -132,9 +166,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.hwNo = None
             return
         self.statDir = f'./{self.dirArchive}/{self.hwNo}/{self.statDf}'
-        if not self.checkStat:
+        if not self.checkStat():
             self.hwNo = None
             return
+        self.updateArchiveText()
+        self.updateCheckText()
+
+    def onBtnSetDdl(self):
+        # self.dateTimeEdit: QtWidgets.QDateTimeEdit
+        self.ddl = self.dateTimeEdit.dateTime().toPyDateTime()
         self.updateArchiveText()
 
     def onBtnArchive(self):
@@ -144,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 待归档文件列表（不包含文件夹）
         waiting_files = [file for file in os.listdir(f'./{self.dirWaiting}')
                          if os.path.isfile(f'./{self.dirWaiting}/{file}')]
-        print(waiting_files)
+        # print(waiting_files)
 
         if len(waiting_files) == 0:
             if len(os.listdir('./' + self.dirWaiting)) != 0:
@@ -159,14 +199,22 @@ class MainWindow(QtWidgets.QMainWindow):
         archive_cnt = 0
         for file_name in waiting_files:
             stuno, new_name = stuFileRename(file_name, self.stuInfo, self.hwNo, self.fileFormat)
-            print(file_name, '|', new_name)
+            # print(file_name, '|', new_name)
             if len(new_name) == 0:
                 continue
             src = f'./{self.dirWaiting}/{file_name}'
             dst = f'./{self.dirArchive}/{self.hwNo}/{self.dirNoMark}/{new_name}'
+            if os.path.isfile(dst):
+                if fileModifyTime(src) < fileModifyTime(dst):
+                    # 目标位置已经有修改日期更晚的文件，丢弃现在的文件
+                    os.remove(src)
+                    continue
+                else:       # 目标位置文件是旧版本，丢弃目标位置的文件，准备放入新文件
+                    os.remove(dst)
             os.rename(src, dst)
             # 标记状态
-            df.loc[stuno, '状态'] = '√' if checkPathLate(dst, self.ddl) else '迟交'
+            # print(stuno, stuno in df.index)
+            df.loc[stuno, '状态'] = '迟交' if checkPathLate(dst, self.ddl) else '√'
             archive_cnt += 1
         self.writeCsv(self.statDir, df)
         text = f'已归档 {archive_cnt} 份作业'
@@ -218,7 +266,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # change to str
         self.stuInfo = self.stuInfo.astype(str)
         self.stuInfo.set_index('学号', inplace=True, verify_integrity=True)
-        print(self.stuInfo)
+        # print('initInfo', self.stuInfo)
+        # print(self.stuInfo.index)
         return True
 
     def checkStat(self):
@@ -237,10 +286,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def initStat(self):
         rows = self.stuInfo.shape[0]
-        data = {'学号': self.stuInfo['学号'], '姓名': self.stuInfo['姓名'],
-                '成绩': [None] * rows, '状态': [None] * rows, '批注': [None] * rows}
+        data = {'学号': list(self.stuInfo.index), '姓名': self.stuInfo['姓名'],
+                '成绩': [' '] * rows, '状态': [' '] * rows, '批注': [' '] * rows}
         df = pd.DataFrame(data)
-        # print(df)
+        df = df.astype(str)
+        df.set_index('学号', inplace=True, verify_integrity=True)
+        # print(df.index)
+        # print(df['状态'])
+        # print('initStat', df)
         # df.to_csv(self.statDir, encoding=self.encoding, index=False)
         self.writeCsv(self.statDir, df)
 
@@ -248,45 +301,88 @@ class MainWindow(QtWidgets.QMainWindow):
         text = ''
         if self.rootDir is not None:
             text += f'当前根目录：\n{self.rootDir}\n'
+        else:
+            text += f'尚未指定工作目录\n'
         if self.hwNo is not None:
             text += f'正在处理第 {self.hwNo} 次作业\n'
-        self.textBrowser.setText(text)
+        else:
+            text += f'尚未指定作业批次\n'
+        if self.ddl is not None:
+            text += f'截止日期： {self.ddl.strftime("%Y-%m-%d %H:%M:%S")} \n'
+        else:
+            text += f'尚未指定截止日期\n'
+        text = text.strip()
+        self.textBrowserArchive.setText(text)
 
     ###################################################################
     # Check page
     def onBtnCheck(self):
+        self.textEditStuNo: QtWidgets.QTextEdit
+        self.textEditScore: QtWidgets.QTextEdit
+        self.textEditComment: QtWidgets.QTextEdit
+        self.labelStuNo: QtWidgets.QLabel
+        self.labelScore: QtWidgets.QLabel
+
         if not self.checkSettings():
             return
-        stuno, ok = QInputDialog.getText(self, '作业批改', '请输入学号')
-        if not ok:
-            return
+        # 检查学号
+        stuno = self.textEditStuNo.toPlainText()
         if stuno not in self.stuInfo.index:
             QMessageBox.critical(self, '错误', f'学号 {stuno} 不存在')
             return
+        # 检查学号对应的未批改文件是否存在
         file_name = self.stuno2filename(stuno)
-        print(file_name)
+        # print(file_name)
         if file_name is None:
-            QMessageBox.critical(self, '错误', f'找不到学号 {stuno} 对应的作业文件')
+            QMessageBox.critical(self, '错误', f'找不到学号 {stuno} 对应的未批改作业文件')
             return
-        score, ok = QInputDialog.getText(self, '作业批改', '请输入成绩')
-        if not ok:
+        # 检查分数格式
+        score = self.textEditScore.toPlainText()
+        try:
+            float(score)
+        except ValueError:
+            QMessageBox.critical(self, '错误', f'分数格式错误')
             return
-        comment, ok = QInputDialog.getText(self, '作业批改', '请输入批注')
-        if not ok:
-            return
+        # 获取评论
+        comment = self.textEditComment.toPlainText()
+        # 登记分数
         self.StatCommit(stuno, score, comment)
         # 移动到已批改
         src = f'./{self.dirArchive}/{self.hwNo}/{self.dirNoMark}/{file_name}'
         dst = f'./{self.dirArchive}/{self.hwNo}/{self.dirMarked}/{file_name}'
-        print(src)
-        print(dst)
         os.rename(src, dst)
+        self.textEditScore.setText('')
+        self.textEditComment.setText('')
+        QMessageBox.information(self, '登记成绩', '登记成功')
 
-    def stuno2filename(self, stuNo):
+    def onTextStuNoChanged(self):
+        # self.textEditStuNo: QtWidgets.QTextEdit
+        # self.labelStuNo: QtWidgets.QLabel
+        if self.stuInfo is None:
+            return
+        stuno = self.textEditStuNo.toPlainText()
+        if stuno in self.stuInfo.index:
+            self.labelStuNo.setText(self.stuInfo.loc[stuno, '姓名'])
+        else:
+            self.labelStuNo.setText('')
+
+    def onTextScoreChanged(self):
+        # self.textEditScore: QtWidgets.QTextEdit
+        # self.labelScore: QtWidgets.QLabel
+        score = self.textEditScore.toPlainText()
+        if score == '':
+            self.labelScore.setText('')
+            return
+        try:
+            float(score)
+        except ValueError:
+            self.labelScore.setText('格式错误')
+        else:
+            self.labelScore.setText('')
+
+    def stuno2filename(self, stuNo: str) -> Union[str, None]:
         """
         调用者需要确保stuNo在学生信息表中存在。
-        :param stuNo: str
-        :return: None or str
         """
         file_list = os.listdir(f'./{self.dirArchive}/{self.hwNo}/{self.dirNoMark}')
         for file in file_list:
@@ -302,6 +398,48 @@ class MainWindow(QtWidgets.QMainWindow):
         # print(df.loc[stuno, :])
         self.writeCsv(self.statDir, df)
 
+    def updateCheckText(self):
+        self.textBrowserCheck: QtWidgets.QTextBrowser
+        text = ''
+        if self.hwNo is not None:
+            text += f'正在处理第 {self.hwNo} 次作业\n'
+        else:
+            text += f'尚未指定作业批次\n'
+        text = text.strip()
+        self.textBrowserCheck.setText(text)
+
+    ###################################################################
+    # Stat page
+    def onBtnPageStat(self):
+        # self.textBrowserStat: QtWidgets.QTextBrowser
+        # self.BtnPageStat: QtWidgets.QPushButton
+        if not self.checkSettings():
+            self.textBrowserStat.setText('')
+            return
+        text = ''
+        nothandin = []
+        late = []
+        df = self.openCsv(self.statDir)
+        for stuno, row in df.iterrows():
+            if row['状态'] == '√':
+                continue
+            elif row['状态'] == '迟交':
+                late.append(row['姓名'])
+            else:
+                nothandin.append(row['姓名'])
+        text += f'迟交 {len(late)} 人\n'
+        if len(late):
+            text += ', '.join(late)
+            text += '\n'
+        text += f'未交 {len(nothandin)} 人\n'
+        if len(nothandin):
+            text += ', '.join(nothandin)
+            text += '\n'
+        text = text.strip()
+        self.textBrowserStat.setText(text)
+        self.labelTop.setText(self.BtnPageStat.text())
+        self.stackedWidget.setCurrentWidget(self.pageStat)
+
     ###################################################################
     # functions for all pages
     def checkSettings(self, onlyRoot=False):
@@ -313,12 +451,20 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.hwNo is None:
             QMessageBox.critical(self, '错误', '没有设定当前作业编号！')
             return False
+        if self.ddl is None:
+            ans = QMessageBox.question(self, '错误', '尚未设定截止日期\n是否设置为现在的时间？')
+            if ans == QMessageBox.Yes:
+                self.ddl = datetime.datetime.now()
+                self.updateArchiveText()
+            else:
+                return False
         return True
 
     def openCsv(self, path: str) -> pd.DataFrame:
         df = pd.read_csv(path, encoding=self.encoding)
-        df.astype(str)
+        df = df.astype(str)
         df.set_index('学号', inplace=True)
+        # print('openCsv:', df)
         return df
 
     def writeCsv(self, path: str, df: pd.DataFrame):

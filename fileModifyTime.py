@@ -10,12 +10,17 @@ import os
 import datetime
 
 
+def fileModifyTime(path: str) -> datetime.datetime:
+    statInfo = os.stat(path)
+    # print(datetime.datetime.fromtimestamp(statInfo.st_mtime))
+    return datetime.datetime.fromtimestamp(statInfo.st_mtime)
+
+
 def checkPathLate(path: str, ddl: datetime.datetime) -> bool:
     """
     若超过DDL则返回True
     """
-    statInfo = os.stat(path)
-    return ddl < datetime.datetime.fromtimestamp(statInfo.st_mtime)
+    return ddl < fileModifyTime(path)
 
 
 # def late_delivery(ddl, num, path="/Users/10361/Desktop/软件工程/易教帮/已归档作业_%d_未批改"):
